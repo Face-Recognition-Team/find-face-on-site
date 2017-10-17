@@ -3,6 +3,7 @@ import sys
 import os
 import dlib
 import glob
+from image_downloader import download_images
 
 from scipy.spatial import distance
 from skimage import io
@@ -59,6 +60,7 @@ def analyze_images(photo_desc):
             
 def main():
     initialize()
+    download_images('http://www.e1.ru')
 
     photo = io.imread(sys.argv[1])
     photo_descriptor = get_photo_desc(photo)

@@ -4,7 +4,7 @@ import os
 from bs4 import BeautifulSoup
 
 
-def get_images(site, output_dir = 'photos'):
+def download_images(site, output_dir = 'photos'):
     if not site.startswith('http'):
         site = 'http://' + site
     if not os.path.exists(output_dir):
@@ -17,7 +17,7 @@ def get_images(site, output_dir = 'photos'):
     urls = [img['src'] for img in img_tags]
 
     for url in urls:
-        filename = re.search(r'/([\w_-]+[.](jpg|gif|png))$', url)
+        filename = re.search(r'/([\w_-]+[.](jpg))$', url)
         if not filename:
             continue
         with open(os.path.join(output_dir, filename.group(1)), 'wb') as f:
@@ -30,4 +30,4 @@ def get_images(site, output_dir = 'photos'):
             f.write(response.content)
 
 if __name__ == '__main__':
-    get_images('e1.ru')
+    download_images('e1.ru')
