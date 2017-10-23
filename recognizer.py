@@ -49,18 +49,23 @@ def analyze(image_name, candidate_features, photo_features):
         #print ('Definetly not your face on {} with dist {}'.format(image_name, dist))
         pass
 
-def analyze_images(photo_desc):
-    images = get_images(faces_folder_path)
+def analyze_images(photo_desc, folder_name='photos'):
+    images = get_images(folder_name)
     for image_name in images:
         image = images[image_name]
         faces = extract_faces(image)
         for face in faces:
             feature = extract_features(face, image)
             analyze(image_name, feature, photo_desc)
-            
+
+def recognize(photo_name, folder_name):
+    photo = io.imread(photo_name)
+    photo_descriptor = get_photo_desc(photo)
+    analyze_images(photo_descriptor, folder_name)
+
 def main():
     initialize()
-    download_images('http://www.e1.ru')
+    download_images('https://www.asozykin.ru')
 
     photo = io.imread(sys.argv[1])
     photo_descriptor = get_photo_desc(photo)

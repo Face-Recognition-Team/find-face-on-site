@@ -14,7 +14,7 @@ def download_images(site, output_dir = 'photos'):
     soup = BeautifulSoup(response.text, 'html.parser')
     img_tags = soup.find_all('img')
 
-    urls = [img['src'] for img in img_tags]
+    urls = [img['src'] for img in img_tags if 'src' in img]
 
     for url in urls:
         filename = re.search(r'/([\w_-]+[.](jpg))$', url)
