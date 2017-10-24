@@ -14,10 +14,10 @@ def download_images(site, output_dir = 'photos'):
     soup = BeautifulSoup(response.text, 'html.parser')
     img_tags = soup.find_all('img')
 
-    urls = [img['src'] for img in img_tags if 'src' in img]
+    urls = [img['src'] for img in img_tags if img.get('src') is not None]
 
     for url in urls:
-        filename = re.search(r'/([\w_-]+[.](jpg))$', url)
+        filename = re.search(r'/([\w_-]+[.](jpg))', url)
         if not filename:
             continue
         with open(os.path.join(output_dir, filename.group(1)), 'wb') as f:
@@ -30,4 +30,4 @@ def download_images(site, output_dir = 'photos'):
             f.write(response.content)
 
 if __name__ == '__main__':
-    download_images('e1.ru')
+    download_images('https://www.facebook.com/max.vedernikov.7')
