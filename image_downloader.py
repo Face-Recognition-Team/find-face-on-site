@@ -22,6 +22,7 @@ def download_images(site, output_dir = 'photos'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     response = requests.get(site)
+    uploaded_imgs= {}
 
     soup = BeautifulSoup(response.text, 'html.parser')
     img_tags = soup.find_all('img')
@@ -29,7 +30,7 @@ def download_images(site, output_dir = 'photos'):
     urls = [img['src'] for img in img_tags if img.get('src') is not None]
     coros = []
     for url in urls:
-        filename = re.search(r'/([\w_-]+[.](jpg))', url)
+        filename = re.search(r'/([\w_-]+[.](jpg|png))', url)
         if not filename:
             continue
         filepath = os.path.join(output_dir, filename.group(1))
@@ -39,13 +40,14 @@ def download_images(site, output_dir = 'photos'):
             # to be the site variable atm. 
             url = '{}{}'.format(site, url)
         coros.append(download_file(url, filepath))
+        uploaded_imgs[filename.group(1)] = [url, 0]
         # with open(os.path.join(output_dir, filename.group(1)), 'wb') as f:
         #     response = requests.get(url)
         #     f.write(response.content)
     loop = asyncio.get_event_loop()
     wait_task = asyncio.wait(coros)
     loop.run_until_complete(wait_task)
-    loop.close()
+    return uploaded_imgs
 
 if __name__ == '__main__':
     download_images('https://www.facebook.com/max.vedernikov.7')

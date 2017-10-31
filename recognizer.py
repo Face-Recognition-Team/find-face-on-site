@@ -3,6 +3,7 @@ import sys
 import os
 import dlib
 import glob
+import cv2
 from image_downloader import download_images
 
 from scipy.spatial import distance
@@ -24,7 +25,8 @@ def extract_features(face, img):
     return facerec.compute_face_descriptor(img, shape)
 
 def extract_faces(img):
-    dets = detector(img, 1)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    dets = detector(gray, 1)
     return dets
 
 def get_photo_desc(img):
@@ -35,33 +37,38 @@ def get_images(path):
     images = {}
     for name in os.listdir(path):
         img = io.imread(path + '/' + name)
-        images[name[:name.index('.')]] = img
+        images[name] = img
     return images
 
 def is_face_recognized(face_vec, default_vec):
     return distance.euclidean(face_vec, default_vec) < TRESHOLD
     
-def analyze(image_name, candidate_features, photo_features):
-    dist = distance.euclidean(candidate_features, photo_features) 
-    if dist < TRESHOLD:
-        print('Your face found on image {} with dist {}'.format(image_name, dist))
-    else:
-        #print ('Definetly not your face on {} with dist {}'.format(image_name, dist))
-        pass
+def analyze(image_name, candidate_features, photo_features, images):
 
-def analyze_images(photo_desc, folder_name='photos'):
+    dist = distance.euclidean(candidate_features, photo_features)
+    if dist < TRESHOLD:
+        if image_name in images:
+            images[image_name][1] = 1
+
+def analyze_images(photo_desc, uploaded_images={}, folder_name='photos'):
+    print(uploaded_images)
     images = get_images(folder_name)
     for image_name in images:
         image = images[image_name]
-        faces = extract_faces(image)
+        faces = []
+        try:
+            faces = extract_faces(image)
+        except Exception as e:
+            print('Uups! Unsupported format of file!')
+            continue
         for face in faces:
             feature = extract_features(face, image)
-            analyze(image_name, feature, photo_desc)
+            analyze(image_name, feature, photo_desc, uploaded_images)
 
-def recognize(photo_name, folder_name):
+def recognize(photo_name, folder_name, uploaded_images):
     photo = io.imread(photo_name)
     photo_descriptor = get_photo_desc(photo)
-    analyze_images(photo_descriptor, folder_name)
+    analyze_images(photo_descriptor, uploaded_images, folder_name)
 
 def main():
     initialize()
